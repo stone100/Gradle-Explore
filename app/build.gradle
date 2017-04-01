@@ -1,0 +1,67 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+    defaultConfig {
+        applicationId "com.stone.gradle_explore"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+
+    signingConfigs {
+        release {
+            storeFile file("stone.keystore")
+            keyAlias "$alias"
+            keyPassword "$kpwd"
+            storePassword "$spwd"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+/**
+ * 编译或者安装命令, 有下列组合:
+ * ./gradlew -Pbt=0 :app:assembleDebug      //打debug包, library用debug模式打包
+ * ./gradlew -Pbt=1 :app:assembleDebug      //打debug包, library用release模式打包
+ * ./gradlew -Pbt=0 :app:assembleRelease    //打release包, library用debug模式打包
+ * ./gradlew -Pbt=1 :app:assembleRelease    //打release包, library用release模式打包
+ * ./gradlew -Pbt=0 :app:installDebug       //安装debug包, library用debug模式打包
+ * ./gradlew -Pbt=1 :app:installDebug       //安装debug包, library用release模式打包
+ * ./gradlew -Pbt=0 :app:installRelease     //安装release包, library用debug模式打包
+ * ./gradlew -Pbt=1 :app:installRelease     //安装release包, library用release模式打包
+ */
+
+//获取命令行传入的buildType
+String getBuildType() {
+    //为了简化输入: bt=0 表示buildType为debug; bt=1 表示buildType为release
+    String buildTypeI =  hasProperty("bt") ? "$bt" : "0"  //如果不传buildType传输, library默认使用debug模式打包
+    return buildTypeI.equals("1") ? "release" : "debug"
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+
+
+    //将命令行自定的buildType传入到library module中
+    compile project(':library', { pj ->
+        pj.ext.buildType = getBuildType()
+    })
+}
