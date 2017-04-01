@@ -45,7 +45,7 @@ android {
 
 //获取命令行传入的buildType
 String getBuildType() {
-    //为了简化输入: bt=0 表示buildType为debug; bt=1 表示buildType为release
+    //为了简化输入(debug/release): bt=0 表示buildType为debug; bt=1 表示buildType为release
     String buildTypeI =  hasProperty("bt") ? "$bt" : "0"  //如果不传buildType传输, library默认使用debug模式打包
     return buildTypeI.equals("1") ? "release" : "debug"
 }
