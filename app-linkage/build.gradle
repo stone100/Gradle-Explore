@@ -1,0 +1,67 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        applicationId "com.stone.app_linkage"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("stone.keystore")
+            keyAlias "$alias"
+            keyPassword "$kpwd"
+            storePassword "$spwd"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+//1. 从命令行中解析出buildType
+def currentBuildType = "release" //library默认使用buildType为release
+gradle.startParameter.taskNames.each({
+    String taskNameL = it.toLowerCase();
+    if(taskNameL.contains("assemble") || taskNameL.contains("install")) {
+        if(taskNameL.contains("debug")) {
+            currentBuildType = "debug"
+            return;
+        } else if(taskNameL.contains("release")) {
+            currentBuildType = "release"
+            return;
+        }
+    }
+})
+
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+
+    compile project(':library-linkage', { pj ->
+        //2. 将解析出的buildType设置给library
+        pj.ext.buildType = currentBuildType
+    })
+}

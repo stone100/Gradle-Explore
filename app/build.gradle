@@ -43,7 +43,7 @@ android {
  * ./gradlew -Pbt=1 :app:installRelease     //安装release包, library用release模式打包
  */
 
-//获取命令行传入的buildType
+//1. 获取命令行额外参数(bt)传入的buildType
 String getBuildType() {
     //为了简化输入(debug/release): bt=0 表示buildType为debug; bt=1 表示buildType为release
     String buildTypeI =  hasProperty("bt") ? "$bt" : "0"  //如果不传buildType传输, library默认使用debug模式打包
@@ -59,9 +59,11 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 
-
-    //将命令行自定的buildType传入到library module中
     compile project(':library', { pj ->
+        //2. 将命令行指定的buildType设置给library
         pj.ext.buildType = getBuildType()
     })
 }
+
+
+
