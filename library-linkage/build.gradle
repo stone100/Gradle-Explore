@@ -24,7 +24,7 @@ android {
         }
     }
 
-    //重新指定defaultPublishConfig
+    //2. 重新指定defaultPublishConfig
     defaultPublishConfig currentBuildType
 }
 
